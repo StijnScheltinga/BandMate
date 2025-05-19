@@ -7,7 +7,7 @@ DATABASE_URL = settings.database_url
 
 print(DATABASE_URL)
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

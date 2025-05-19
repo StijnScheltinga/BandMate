@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Table, Column, Integer, String, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 
 # Joining Tables
@@ -24,7 +24,7 @@ user_genre = Table(
 	Column('genre_id', Integer, ForeignKey('genre.id'))
 )
 
-# An user had 1 city, 0/many bands, 0/many genres.
+# An user has 1 city, 0/many bands, 0/many genres.
 class User(Base):
 	__tablename__ = 'user'
 
@@ -32,22 +32,12 @@ class User(Base):
 	email = Column(String(255), unique=True)
 	hashed_password = Column(String(255))
 	display_name = Column(String(255))
-	city_id = Column(Integer, ForeignKey('city.id')) # "city.id" must match tablename
 
-	city = relationship('City', back_populates='users')
+	latitude = Column(Float, nullable=True)
+	longtitude = Column(Float, nullable=True)
+
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')
-
-
-class City(Base):
-	__tablename__ = 'city'
-
-	id = Column(Integer, primary_key=True)
-	city_name = Column(String)
-
-	#can filter users linked to a city
-	users = relationship('User', back_populates='city')
-
 
 class Band(Base):
 	__tablename__ = 'band'
