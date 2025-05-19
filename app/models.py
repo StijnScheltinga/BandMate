@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey
+from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 # Joining Tables
@@ -7,21 +7,24 @@ user_band = Table(
 	'user_band', 
 	Base.metadata, 
 	Column('user_id', Integer, ForeignKey('user.id')),
-	Column('band_id', Integer, ForeignKey('band.id'))
+	Column('band_id', Integer, ForeignKey('band.id')),
+	UniqueConstraint('user_id', 'band_id')
 )
 
 band_genre = Table(
 	'band_genre', 
 	Base.metadata, 
 	Column('band_id', Integer, ForeignKey('band.id')),
-	Column('genre_id', Integer, ForeignKey('genre.id'))
+	Column('genre_id', Integer, ForeignKey('genre.id')),
+	UniqueConstraint('band_id', 'genre_id')
 )
 
 user_genre = Table(
 	'user_genre', 
 	Base.metadata, 
 	Column('user_id', Integer, ForeignKey('user.id')),
-	Column('genre_id', Integer, ForeignKey('genre.id'))
+	Column('genre_id', Integer, ForeignKey('genre.id')),
+	UniqueConstraint('user_id', 'genre_id')
 )
 
 # An user has 1 city, 0/many bands, 0/many genres.

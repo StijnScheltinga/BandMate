@@ -92,4 +92,4 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
 	db.add(new_user)
 	db.commit()
 
-user_dependecy = Annotated[User, Depends(get_current_user)]
+user_dependency = Annotated[User, Depends(get_current_user)]
