@@ -37,7 +37,7 @@ class User(Base):
 	display_name = Column(String(255))
 
 	latitude = Column(Float, nullable=True)
-	longtitude = Column(Float, nullable=True)
+	longitude = Column(Float, nullable=True)
 
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')

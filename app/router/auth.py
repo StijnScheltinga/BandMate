@@ -26,7 +26,7 @@ class CreateUserRequest(BaseModel):
 	password: str = Field(max_length=255)
 	display_name: str = Field(max_length=255)
 	latitude: float | None
-	longtitude: float | None
+	longitude: float | None
 
 	class Config:
 		json_schema_extra = {
@@ -35,7 +35,7 @@ class CreateUserRequest(BaseModel):
 				"password": "password123!",
 				"display_name": "John doe",
 				"latitude": 52.1326,
-				"longtitude": 5.2913
+				"longitude": 5.2913
 			}
 		}
 	
@@ -87,7 +87,7 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
 		hashed_password=pw_context.hash(create_user_request.password),
 		display_name=create_user_request.display_name,
 		latitude=create_user_request.latitude,
-		longtitude=create_user_request.longtitude
+		longitude=create_user_request.longitude
 	)
 	db.add(new_user)
 	db.commit()
