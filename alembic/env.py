@@ -12,7 +12,7 @@ from app.models import Base
 # access to the values within the .ini file in use.
 config = context.config
 
-db_url = settings.database_url # assuming your .env has DATABASE_URL
+db_url = settings.DATABASE_URL # assuming your .env has DATABASE_URL
 
 if db_url:
     config.set_main_option("sqlalchemy.url", db_url)

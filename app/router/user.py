@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from app.database import db_dependency
 from app.router.auth import user_dependency
 from app.models import User, Genre
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 router = APIRouter(
@@ -16,7 +16,7 @@ class UserOut(BaseModel):
 	display_name: str
 	latitude: float
 	longitude: float
-	distance_km: Optional[float] = None
+	distance_km: float = Field(default=None)
 
 class UserGenreUpdate(BaseModel):
 	genre_ids: List[int]
@@ -52,3 +52,11 @@ async def add_genre(user: user_dependency, db: db_dependency, user_genre_update:
         "message": f"Added {len(genres_to_add)} new genres to user.",
         "genre_ids_added": [genre.id for genre in genres_to_add],
     }
+
+# @router.delete("/remove_genre", status_code=status.HTTP_204_NO_CONTENT)
+# async def remove_genre()
+
+@router.delete('/delete_user', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user: user_dependency, db: db_dependency):
+	db.delete(user)
+	db.commit()

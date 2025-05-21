@@ -39,6 +39,8 @@ class User(Base):
 	latitude = Column(Float, nullable=True)
 	longitude = Column(Float, nullable=True)
 
+	#instrumenten
+
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')
 

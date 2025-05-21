@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends
 from typing import Annotated
 
-DATABASE_URL = settings.database_url
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
 

@@ -13,8 +13,8 @@ from typing import Annotated
 pw_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
-SECRET_KEY = settings.secret_key
-ALGORITHM = settings.algorithm
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 router = APIRouter(
 	prefix='/auth',
@@ -82,6 +82,8 @@ async def get_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depen
 
 @router.post('/create_user', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user_request: CreateUserRequest):
+	if db.query(User).filter(User.email == create_user_request.email).first():
+		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An user with this email already exists")
 	new_user = User(
 		email=create_user_request.email,
 		hashed_password=pw_context.hash(create_user_request.password),

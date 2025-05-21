@@ -21,9 +21,12 @@ async def filter_by_location(user: user_dependency, db: db_dependency):
 		.filter(User.id != user.id)
 		.all()
 	)
-	# users_with_distance = [
-	# 	UserOut()
-	# 	for u in users
-	# ]
+	users_with_distance = []
 
-	return users
+	for other_user in users:
+		distance = haversine(other_user.latitude, other_user.longitude, user.latitude, user.longitude)
+		other_user.distance_km = round(distance, 2)
+		print(other_user.distance_km)
+		users_with_distance.append(other_user)
+
+	return users_with_distance
