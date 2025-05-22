@@ -11,14 +11,6 @@ user_band = Table(
 	UniqueConstraint('user_id', 'band_id')
 )
 
-band_genre = Table(
-	'band_genre', 
-	Base.metadata, 
-	Column('band_id', Integer, ForeignKey('band.id')),
-	Column('genre_id', Integer, ForeignKey('genre.id')),
-	UniqueConstraint('band_id', 'genre_id')
-)
-
 user_genre = Table(
 	'user_genre', 
 	Base.metadata, 
@@ -27,22 +19,38 @@ user_genre = Table(
 	UniqueConstraint('user_id', 'genre_id')
 )
 
+user_instrument = Table(
+	'user_instrument',
+	Base.metadata,
+	Column('user_id', Integer, ForeignKey('user.id')),
+	Column('instrument_id', Integer, ForeignKey('instrument.id')),
+	UniqueConstraint('user_id', 'instrument_id')
+)
+
+band_genre = Table(
+	'band_genre', 
+	Base.metadata, 
+	Column('band_id', Integer, ForeignKey('band.id')),
+	Column('genre_id', Integer, ForeignKey('genre.id')),
+	UniqueConstraint('band_id', 'genre_id')
+)
+
 # An user has 1 city, 0/many bands, 0/many genres.
 class User(Base):
 	__tablename__ = 'user'
 
 	id = Column(Integer, primary_key=True)
-	email = Column(String(255), unique=True)
-	hashed_password = Column(String(255))
-	display_name = Column(String(255))
 
+	email = Column(String(255), unique=True, nullable=False)
+	hashed_password = Column(String(255), nullable=False)
+
+	display_name = Column(String(255), nullable=True)
 	latitude = Column(Float, nullable=True)
 	longitude = Column(Float, nullable=True)
 
-	#instrumenten
-
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')
+	instruments = relationship('Instrument', secondary=user_instrument, back_populates='users')
 
 class Band(Base):
 	__tablename__ = 'band'
@@ -62,3 +70,12 @@ class Genre(Base):
 
 	users = relationship("User", secondary=user_genre, back_populates='genres')
 	bands = relationship("Band", secondary=band_genre, back_populates='genres')
+
+class Instrument(Base):
+	__tablename__ = 'instrument'
+
+	id = Column(Integer, primary_key=True)
+	name = Column(String(255))
+
+	users = relationship('User', secondary=user_instrument, back_populates='instruments')
+

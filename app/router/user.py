@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from app.database import db_dependency
 from app.router.auth import user_dependency
-from app.models import User, Genre
+from app.models import User
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
@@ -13,10 +13,10 @@ router = APIRouter(
 class UserOut(BaseModel):
 	id: int
 	email: str
-	display_name: str
-	latitude: float
-	longitude: float
-	distance_km: float = Field(default=None)
+	display_name: Optional[str] = None
+	latitude: Optional[float] = None
+	longitude: Optional[float] = None
+	distance_km: Optional[float] = None
 
 @router.get("/current", status_code=status.HTTP_200_OK, response_model=UserOut)
 async def get_current_user(user: user_dependency):
