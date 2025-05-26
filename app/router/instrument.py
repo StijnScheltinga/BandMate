@@ -13,12 +13,16 @@ router = APIRouter(
 class UserInstrumentUpdate(BaseModel):
 	instrument_ids: List[int]
 
-@router.get("/user", status_code=status.HTTP_200_OK)
+class InstrumentOut(BaseModel):
+	id: int
+	name: str
+
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
 async def get_user_instruments(user: user_dependency, db: db_dependency):
 	instruments = user.instruments
 	return instruments
 
-@router.get("/all", status_code=status.HTTP_200_OK)
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
 async def get_all_instruments(user: user_dependency, db: db_dependency):
 	instruments = db.query(Instrument).all()
 	return instruments

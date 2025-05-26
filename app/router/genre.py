@@ -17,8 +17,8 @@ class GenreOut(BaseModel):
 	id: int
 	name: str
 
-@router.get("/user", status_code=status.HTTP_200_OK)
-async def get_user_genres(user: user_dependency, db: db_dependency, response_model=List[GenreOut]):
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
+async def get_user_genres(user: user_dependency, db: db_dependency):
 	genres = user.genres
 	return genres
 

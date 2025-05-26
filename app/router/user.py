@@ -57,6 +57,8 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
 	db.add(new_user)
 	db.commit()
 
+	return {"message": "succesfully created user"}
+
 @router.get("/current", status_code=status.HTTP_200_OK, response_model=UserOut)
 async def get_current_user(user: user_dependency):
 	return user

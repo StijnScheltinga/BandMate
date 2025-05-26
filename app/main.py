@@ -4,6 +4,7 @@ from app import models
 from app.router import auth, user, genre, instrument, filter, profile
 from app.scripts.startup import populate_initial_data
 from contextlib import asynccontextmanager
+from pydantic import BaseModel
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,6 +14,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+class HealthOut(BaseModel):
+	status: dict = 'Server is running'
 
 @app.get('/health', status_code=status.HTTP_200_OK)
 def health_check():
