@@ -20,18 +20,6 @@ router = APIRouter(
 	prefix='/auth',
 	tags=['auth']
 )
-
-class CreateUserRequest(BaseModel):
-	email: str = Field(max_length=255)
-	password: str = Field(max_length=255)
-
-	class Config:
-		json_schema_extra = {
-			"example": {
-				"email": "user@gmail.com",
-				"password": "password123!",
-			}
-		}
 	
 class Token(BaseModel):
 	access_token: str
@@ -65,24 +53,11 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: db
 		return current_user
 	except JWTError:
 		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
-	
 
 @router.post("/token", response_model=Token)
 async def get_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
 	user = authenticate_user(form_data.username, form_data.password, db)
 	token = create_acces_token(user.email, user.id, timedelta(minutes=30))
 	return {"access_token": token, "token_type": "bearer"}
-
-
-@router.post('/create_user', status_code=status.HTTP_201_CREATED)
-async def create_user(db: db_dependency, create_user_request: CreateUserRequest):
-	if db.query(User).filter(User.email == create_user_request.email).first():
-		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="An user with this email already exists")
-	new_user = User(
-		email=create_user_request.email,
-		hashed_password=pw_context.hash(create_user_request.password),
-	)
-	db.add(new_user)
-	db.commit()
 
 user_dependency = Annotated[User, Depends(get_current_user)]

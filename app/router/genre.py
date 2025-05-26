@@ -13,12 +13,16 @@ router = APIRouter(
 class UserGenreUpdate(BaseModel):
 	genre_ids: List[int]
 
+class GenreOut(BaseModel):
+	id: int
+	name: str
+
 @router.get("/user", status_code=status.HTTP_200_OK)
-async def get_user_genres(user: user_dependency, db: db_dependency):
+async def get_user_genres(user: user_dependency, db: db_dependency, response_model=List[GenreOut]):
 	genres = user.genres
 	return genres
 
-@router.get("/all", status_code=status.HTTP_200_OK)
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
 async def get_all_genres(user: user_dependency, db: db_dependency):
 	genres = db.query(Genre).all()
 	return genres

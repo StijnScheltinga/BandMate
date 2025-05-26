@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import get_db
 from app.models import Base
-from app.router.auth import create_user
+from app.router.user import create_user
 from fastapi.testclient import TestClient
 
 DATABASE_URL = "sqlite:///:memory:"
@@ -46,9 +46,9 @@ def client(db_session):
 def test_user(client):
 	user_data = {
 		"email": "test@example.com",
-		"password": "password123!"
+		"password": "Password123!"
 	}
-	response = client.post("/auth/create_user", json=user_data)
+	response = client.post("/user/create_user", json=user_data)
 	assert response.status_code == 201
 	return user_data
 
