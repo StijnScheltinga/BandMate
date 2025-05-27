@@ -8,7 +8,7 @@ def test_create_user_valid(db_session, client):
 	}
 	response = client.post("/user/create_user", json=user_data)
 	assert response.status_code == status.HTTP_201_CREATED
-	assert response.json() == None
+	assert response.json() == {"message": "succesfully created user"}
 
 	user = db_session.query(User).filter_by(email=user_data["email"]).first()
 	assert user != None
