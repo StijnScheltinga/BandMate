@@ -51,6 +51,7 @@ class User(Base):
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')
 	instruments = relationship('Instrument', secondary=user_instrument, back_populates='users')
+	media = relationship('Media', back_populates='user', cascade='all, delete-orphan')
 
 class Band(Base):
 	__tablename__ = 'band'
@@ -78,4 +79,14 @@ class Instrument(Base):
 	name = Column(String(255))
 
 	users = relationship('User', secondary=user_instrument, back_populates='instruments')
+
+class Media(Base):
+	__tablename__ = 'media'
+
+	id = Column(Integer, primary_key=True)
+	user_id = Column('user_id', Integer, ForeignKey('user.id'))
+	blob_url = Column(String, nullable=False)
+
+	user = relationship('User', back_populates='media')
+
 
