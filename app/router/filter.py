@@ -16,8 +16,8 @@ router = APIRouter(
 async def filter_by_location(user: user_dependency, db: db_dependency):
 	users = (
 		db.query(User)
-		.filter(User.latitude is not None)
-		.filter(User.longitude is not None)
+		.filter(User.latitude.isnot(None))
+		.filter(User.longitude.isnot(None))
 		.filter(User.id != user.id)
 		.all()
 	)
@@ -28,5 +28,7 @@ async def filter_by_location(user: user_dependency, db: db_dependency):
 		other_user.distance_km = round(distance, 2)
 		print(other_user.distance_km)
 		users_with_distance.append(other_user)
+	
+	users_with_distance.sort(key=lambda user: user.distance_km)
 
 	return users_with_distance
