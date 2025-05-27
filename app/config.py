@@ -4,6 +4,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     SECRET_KEY: str
     ALGORITHM: str
+    BLOB_CONNECTION_STRING: str
+    CONTAINER_NAME: str
 
     class Config:
         env_file = ".env"

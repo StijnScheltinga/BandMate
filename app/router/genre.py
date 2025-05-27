@@ -17,16 +17,6 @@ class GenreOut(BaseModel):
 	id: int
 	name: str
 
-@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
-async def get_user_genres(user: user_dependency, db: db_dependency):
-	genres = user.genres
-	return genres
-
-@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
-async def get_all_genres(user: user_dependency, db: db_dependency):
-	genres = db.query(Genre).all()
-	return genres
-
 @router.post("/user/add", status_code=status.HTTP_201_CREATED)
 async def add_genre_to_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
 	existing_genre_ids = {genre.id for genre in user.genres}
@@ -48,6 +38,17 @@ async def add_genre_to_user(user: user_dependency, db: db_dependency, user_genre
         "message": f"Added {len(genres_to_add)} new genres to user.",
         "genre_ids_added": [genre.id for genre in genres_to_add],
     }
+
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
+async def get_user_genres(user: user_dependency, db: db_dependency):
+	genres = user.genres
+	return genres
+
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
+async def get_all_genres(user: user_dependency, db: db_dependency):
+	genres = db.query(Genre).all()
+	return genres
+
 
 # @router.delete("/user/remove/{genre_id}", status_code=status.HTTP_204_NO_CONTENT)
 # async def remove_genre_from_user(user: user_dependency, db: db_dependency, genre_id: int):

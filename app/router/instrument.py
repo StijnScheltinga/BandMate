@@ -17,16 +17,6 @@ class InstrumentOut(BaseModel):
 	id: int
 	name: str
 
-@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
-async def get_user_instruments(user: user_dependency, db: db_dependency):
-	instruments = user.instruments
-	return instruments
-
-@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
-async def get_all_instruments(user: user_dependency, db: db_dependency):
-	instruments = db.query(Instrument).all()
-	return instruments
-
 @router.post("/user/add", status_code=status.HTTP_201_CREATED)
 async def add_instrument_to_user(user: user_dependency, db: db_dependency, user_instrument_update: UserInstrumentUpdate):
 	existing_instrument_ids = {instrument.id for instrument in user.instruments}
@@ -48,3 +38,13 @@ async def add_instrument_to_user(user: user_dependency, db: db_dependency, user_
         "message": f"Added {len(instruments_to_add)} new instruments to user.",
         "instrument_ids_added": [instrument.id for instrument in instruments_to_add],
     }
+
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
+async def get_user_instruments(user: user_dependency, db: db_dependency):
+	instruments = user.instruments
+	return instruments
+
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
+async def get_all_instruments(user: user_dependency, db: db_dependency):
+	instruments = db.query(Instrument).all()
+	return instruments
