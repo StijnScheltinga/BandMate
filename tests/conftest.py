@@ -53,15 +53,16 @@ def test_user(client):
 	return user_data
 
 @pytest.fixture(scope="session")
-def access_token(client, test_user):
+def tokens(client, test_user):
 	token_data = {
 		"username": test_user["email"],
 		"password": test_user["password"]
 	}
-	token_response = client.post("/auth/token", data=token_data)
-	assert token_response.status_code == 200
-	return token_response.json()["access_token"]
+	response = client.post("/auth/token", data=token_data)
+	assert response.status_code == 200
+	return response.json()
 
 @pytest.fixture
-def auth_headers(access_token):
+def auth_headers(tokens):
+	access_token = tokens["access_token"]
 	return {"Authorization": f"Bearer {access_token}"}
