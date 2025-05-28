@@ -47,6 +47,7 @@ class User(Base):
 	display_name = Column(String(255), nullable=True)
 	latitude = Column(Float, nullable=True)
 	longitude = Column(Float, nullable=True)
+	refresh_token = Column(String(255), nullable=True)
 
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')
