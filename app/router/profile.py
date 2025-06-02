@@ -78,3 +78,10 @@ async def upload_user_media(user: user_dependency, db: db_dependency, file: Uplo
 @router.get('/media', status_code=status.HTTP_200_OK, response_model=List[MediaOut])
 async def get_profile_media(user: user_dependency):
 	return user.media
+
+@router.get('/default/avatar', status_code=status.HTTP_200_OK, response_model=List[str])
+async def get_default_avatars():
+	container_client = blob_service_client.get_container_client("default-avatar")
+	blob_list = container_client.list_blobs()
+	urls = [f"https://{blob_service_client.account_name}.blob.core.windows.net/default-avatar/{blob.name}" for blob in blob_list]
+	return urls

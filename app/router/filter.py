@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 from app.database import db_dependency
 from app.router.auth import user_dependency
 from app.router.user import UserOut 
@@ -14,6 +14,9 @@ router = APIRouter(
 
 @router.get("/location", status_code=status.HTTP_200_OK, response_model=List[UserOut])
 async def filter_by_location(user: user_dependency, db: db_dependency):
+	if user.latitude is None or user.longitude is None:
+		raise HTTPException(status_code=400, detail='User has no location specified')
+
 	users = (
 		db.query(User)
 		.filter(User.latitude.isnot(None))

@@ -80,10 +80,10 @@ async def refresh_token(db: db_dependency, refresh_token: str = Body(...)):
 			access_token = create_token(user.email, user.id, timedelta(minutes=15))
 			return {"access_token": access_token, "token_type": "bearer"}
 		else:
-			raise HTTPException(status_code=401, detail="Invalid refresh token 1")
+			raise HTTPException(status_code=401, detail="Invalid refresh token")
 	except ExpiredSignatureError:
 		raise HTTPException(status_code=401, detail="Refresh token expired")
 	except JWTError:
-		raise HTTPException(status_code=401, detail="Invalid refresh token 2")
+		raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 user_dependency = Annotated[User, Depends(get_current_user)]
