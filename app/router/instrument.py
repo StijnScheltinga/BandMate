@@ -35,9 +35,9 @@ async def add_instrument_to_user(user: user_dependency, db: db_dependency, user_
 	db.commit()
 
 	return {
-        "message": f"Added {len(instruments_to_add)} new instruments to user.",
-        "instrument_ids_added": [instrument.id for instrument in instruments_to_add],
-    }
+		"message": f"Added {len(instruments_to_add)} new instruments to user.",
+		"instrument_ids_added": [instrument.id for instrument in instruments_to_add],
+	}
 
 @router.get("/user", status_code=status.HTTP_200_OK, response_model=List[InstrumentOut])
 async def get_user_instruments(user: user_dependency, db: db_dependency):
@@ -64,3 +64,37 @@ async def remove_instrument_from_user(user: user_dependency, db: db_dependency, 
 		user.instruments.remove(instrument)
 	
 	db.commit()
+
+# Logic for updating: 
+# instrument in update and in current, do nothing
+# instrument in update not in current, add
+# Instrument not in update in current, remove
+@router.put("/user", status_code=status.HTTP_200_OK)
+async def update_instruments_user(user: user_dependency, db: db_dependency, user_instrument_update: UserInstrumentUpdate):
+	current_user_instrument_ids = {instrument.id for instrument in user.instruments}
+
+	# Get instrument IDs from the request payload
+	updated_instrument_ids = set(user_instrument_update.instrument_ids)
+
+	# Determine instruments to add and remove
+	instrument_ids_to_add = updated_instrument_ids - current_user_instrument_ids
+	instrument_ids_to_remove = current_user_instrument_ids - updated_instrument_ids
+
+	# Query and add new instruments
+	if instrument_ids_to_add:
+		instruments_to_add = db.query(Instrument).filter(Instrument.id.in_(instrument_ids_to_add)).all()
+		user.instruments.extend(instruments_to_add)
+
+	# Remove instruments that are no longer desired
+	if instrument_ids_to_remove:
+		instruments_to_remove = db.query(Instrument).filter(Instrument.id.in_(instrument_ids_to_remove)).all()
+		for instrument in instruments_to_remove:
+			user.instruments.remove(instrument)
+
+	db.commit()
+
+	return {
+		"message": "User instruments updated.",
+		"instrument_ids_added": list(instrument_ids_to_add),
+		"instrument_ids_removed": list(instrument_ids_to_remove)
+	}
