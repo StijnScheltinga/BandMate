@@ -24,6 +24,7 @@ class ProfileInfo(BaseModel):
 	instrument_ids: List[int]
 	latitude: float
 	longitude: float
+	profile_picture: str
 
 	class Config:
 		json_schema_extra = {
@@ -32,7 +33,8 @@ class ProfileInfo(BaseModel):
 				"genre_ids": [1, 3, 19],
 				"instrument_ids": [4, 7, 13],
 				"latitude": 52.719474,
-				"longitude": 5.075181
+				"longitude": 5.075181,
+				"profile_picture": "https://bandmate.blob.core.windows.net/default-avatar/guitarist.png"
 			}
 		}
 
@@ -51,6 +53,7 @@ async def set_profile_info(user: user_dependency, db: db_dependency, profile_inf
 	user.display_name = profile_info.display_name
 	user.latitude = profile_info.latitude
 	user.longitude = profile_info.longitude
+	user.profile_picture = profile_info.profile_picture
 
 	db.commit()
 
