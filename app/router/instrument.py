@@ -1,5 +1,5 @@
 from app.models import Instrument
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 from app.router.auth import user_dependency
 from app.database import db_dependency
 from typing import List
@@ -48,3 +48,19 @@ async def get_user_instruments(user: user_dependency, db: db_dependency):
 async def get_all_instruments(user: user_dependency, db: db_dependency):
 	instruments = db.query(Instrument).all()
 	return instruments
+
+@router.delete("/user/delete", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_instrument_from_user(user: user_dependency, db: db_dependency, user_instrument_update: UserInstrumentUpdate):
+	current_user_instrument_ids = {instrument.id for instrument in user.instruments}
+
+	instrument_ids_to_remove = current_user_instrument_ids & set(user_instrument_update.instrument_ids)
+
+	if not instrument_ids_to_remove:
+		raise HTTPException(status_code=404, detail="Can only delete instruments currently assigned to user")
+
+	instruments_to_remove = db.query(Instrument).filter(Instrument.id.in_(instrument_ids_to_remove)).all()
+
+	for instrument in instruments_to_remove:
+		user.instruments.remove(instrument)
+	
+	db.commit()

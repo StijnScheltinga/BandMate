@@ -1,5 +1,5 @@
-from app.models import User, Genre
-from fastapi import APIRouter, status
+from app.models import Genre
+from fastapi import APIRouter, status, HTTPException
 from app.router.auth import user_dependency
 from app.database import db_dependency
 from typing import List
@@ -50,8 +50,18 @@ async def get_all_genres(user: user_dependency, db: db_dependency):
 	return genres
 
 
-# @router.delete("/user/remove/{genre_id}", status_code=status.HTTP_204_NO_CONTENT)
-# async def remove_genre_from_user(user: user_dependency, db: db_dependency, genre_id: int):
-# 	existing_genre_ids = {genre.id for genre in user.genres}
+@router.delete("/user/delete", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_genre_from_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
+	current_user_genre_ids = {genre.id for genre in user.genres}
 
-# 	if genre_id in existing_genre_ids:
+	genre_ids_to_remove = current_user_genre_ids & set(user_genre_update.genre_ids)
+
+	if not genre_ids_to_remove:
+		raise HTTPException(status_code=404, detail="Can only delete genres currently assigned to user")
+
+	genres_to_remove = db.query(Genre).filter(Genre.id.in_(genre_ids_to_remove)).all()
+
+	for genre in genres_to_remove:
+		user.genres.remove(genre)
+	
+	db.commit()
