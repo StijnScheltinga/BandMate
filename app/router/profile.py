@@ -43,7 +43,6 @@ class MediaOut(BaseModel):
 
 @router.post('/setup', status_code=status.HTTP_201_CREATED)
 async def set_profile_info(user: user_dependency, db: db_dependency, profile_info: ProfileInfo):
-
 	genres_to_add = db.query(Genre).filter(Genre.id.in_(profile_info.genre_ids)).all()
 	user.genres.extend(genres_to_add)
 
