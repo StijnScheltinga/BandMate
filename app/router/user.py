@@ -34,7 +34,7 @@ class CreateUserRequest(BaseModel):
 		json_schema_extra = {
 			"example": {
 				"email": "user@gmail.com",
-				"password": "password123!",
+				"password": "Password123!",
 			}
 		}
 
