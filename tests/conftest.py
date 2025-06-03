@@ -131,7 +131,8 @@ def test_users(db_session):
 			hashed_password=fake.password(),
 			display_name=fake.user_name(),
 			latitude=fake.latitude(),
-			longitude=fake.longitude()
+			longitude=fake.longitude(),
+			setup_complete=True
 		)
 		db_session.add(user)
 		users.append(user)
