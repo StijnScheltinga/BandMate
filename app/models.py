@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Float, Boolean, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 # Joining Tables
@@ -49,6 +49,8 @@ class User(Base):
 	longitude = Column(Float, nullable=True)
 	refresh_token = Column(String(255), nullable=True)
 	profile_picture = Column(String(255), nullable=True)
+
+	setup_complete = Column(Boolean, default=False, nullable=False)
 
 	bands = relationship('Band', secondary=user_band, back_populates='users')
 	genres = relationship('Genre', secondary=user_genre, back_populates='users')

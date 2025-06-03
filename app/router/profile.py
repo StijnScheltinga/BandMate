@@ -43,6 +43,9 @@ class MediaOut(BaseModel):
 
 @router.post('/setup', status_code=status.HTTP_201_CREATED)
 async def set_profile_info(user: user_dependency, db: db_dependency, profile_info: ProfileInfo):
+	if user.setup_complete:
+		raise HTTPException(status_code=400, detail="User has already completed setup")
+
 	genres_to_add = db.query(Genre).filter(Genre.id.in_(profile_info.genre_ids)).all()
 	user.genres.extend(genres_to_add)
 
@@ -53,6 +56,8 @@ async def set_profile_info(user: user_dependency, db: db_dependency, profile_inf
 	user.latitude = profile_info.latitude
 	user.longitude = profile_info.longitude
 	user.profile_picture = profile_info.profile_picture
+
+	user.setup_complete = True
 
 	db.commit()
 
