@@ -110,7 +110,8 @@ def user_with_profile(client):
 		"genre_ids": [1, 3],
 		"instrument_ids": [4, 6],
 		"latitude": float(fake.latitude()),
-		"longitude": float(fake.longitude())
+		"longitude": float(fake.longitude()),
+		"profile_picture": "https://bandmate.blob.core.windows.net/default-avatar/guitarist.png"
 	}
 	profile_response = client.post("/profile/setup", headers=auth_header, json=profile_data)
 	assert profile_response.status_code == 201
@@ -130,7 +131,8 @@ def test_users(db_session):
 			hashed_password=fake.password(),
 			display_name=fake.user_name(),
 			latitude=fake.latitude(),
-			longitude=fake.longitude()
+			longitude=fake.longitude(),
+			setup_complete=True
 		)
 		db_session.add(user)
 		users.append(user)

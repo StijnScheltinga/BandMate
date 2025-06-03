@@ -1,4 +1,5 @@
 from app.models import Genre
+from app.scripts.startup import GENRES
 from fastapi import APIRouter, status, HTTPException
 from app.router.auth import user_dependency
 from app.database import db_dependency
@@ -17,51 +18,52 @@ class GenreOut(BaseModel):
 	id: int
 	name: str
 
-@router.post("/user/add", status_code=status.HTTP_201_CREATED)
-async def add_genre_to_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
-	existing_genre_ids = {genre.id for genre in user.genres}
-
-	genres_to_add = (
-		db.query(Genre)
-		.filter(Genre.id.in_(user_genre_update.genre_ids))
-		.filter(~Genre.id.in_(existing_genre_ids))
-		.all()
-	)
-
-	if not genres_to_add:
-		return {"message": "No new genres to add."}
-
-	user.genres.extend(genres_to_add)
-	db.commit()
-
-	return {
-        "message": f"Added {len(genres_to_add)} new genres to user.",
-        "genre_ids_added": [genre.id for genre in genres_to_add],
-    }
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
+async def get_all_genres(user: user_dependency, db: db_dependency):
+	genres = db.query(Genre).all()
+	return genres
 
 @router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
 async def get_user_genres(user: user_dependency, db: db_dependency):
 	genres = user.genres
 	return genres
 
-@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
-async def get_all_genres(user: user_dependency, db: db_dependency):
-	genres = db.query(Genre).all()
-	return genres
-
-
-@router.delete("/user/delete", status_code=status.HTTP_204_NO_CONTENT)
-async def remove_genre_from_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
+@router.put("/user", status_code=status.HTTP_200_OK)
+async def update_genres_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
+	"""
+	Logic for updating: 
+	Genre in update and in current, do nothing
+	Genre in update not in current, add
+	Genre not in update in current, remove
+	"""
 	current_user_genre_ids = {genre.id for genre in user.genres}
 
-	genre_ids_to_remove = current_user_genre_ids & set(user_genre_update.genre_ids)
+	# Get genre IDs from the request payload
+	updated_genre_ids = set(user_genre_update.genre_ids)
 
-	if not genre_ids_to_remove:
-		raise HTTPException(status_code=404, detail="Can only delete genres currently assigned to user")
+	for g_id in updated_genre_ids:
+		if g_id < 1 or g_id > len(GENRES):
+			raise HTTPException(status_code=400, detail=f"Id {g_id} does not exist")
 
-	genres_to_remove = db.query(Genre).filter(Genre.id.in_(genre_ids_to_remove)).all()
+	# Determine genres to add and remove
+	genre_ids_to_add = updated_genre_ids - current_user_genre_ids
+	genre_ids_to_remove = current_user_genre_ids - updated_genre_ids
 
-	for genre in genres_to_remove:
-		user.genres.remove(genre)
-	
+	# Query and add new genres
+	if genre_ids_to_add:
+		genres_to_add = db.query(Genre).filter(Genre.id.in_(genre_ids_to_add)).all()
+		user.genres.extend(genres_to_add)
+
+	# Remove genres that are no longer desired
+	if genre_ids_to_remove:
+		genres_to_remove = db.query(Genre).filter(Genre.id.in_(genre_ids_to_remove)).all()
+		for genre in genres_to_remove:
+			user.genres.remove(genre)
+
 	db.commit()
+
+	return {
+		"message": "User genres updated.",
+		"genre_ids_added": list(genre_ids_to_add),
+		"genre_ids_removed": list(genre_ids_to_remove)
+	}
