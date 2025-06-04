@@ -10,6 +10,14 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  ALGORITHM: ${{ secrets.ALGORITHM }}
+  BLOB_CONNECTION_STRING: ${{ secrets.BLOB_CONNECTION_STRING }}
+  CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
