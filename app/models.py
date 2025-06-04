@@ -1,5 +1,5 @@
 from app.database import Base
-from sqlalchemy import Table, Column, Integer, String, Float, Boolean, ForeignKey, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Float, Boolean, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 # Joining Tables
@@ -92,5 +92,16 @@ class Media(Base):
 	blob_url = Column(String, nullable=False)
 
 	user = relationship('User', back_populates='media')
+
+class BandInvite(Base):
+	__tablename__ = "band_invite"
+
+	id = Column(Integer, primary_key=True)
+	band_id = Column('band_id', Integer, ForeignKey('band.id'))
+	sender_id = Column('sender_id', Integer, ForeignKey('user.id'))
+	reciever_id = Column('reciever_id', Integer, ForeignKey('user.id'))
+	status = Column(Enum("pending", "accepted", "declined", name="status"), default="pending")
+
+	__table_args__ = (UniqueConstraint("sender_id", "reciever_id", "band_id", name="unique_band_invite"),)
 
 
