@@ -36,6 +36,18 @@ def sort_by_location(current_user: User, users: List[User]):
 
 	return users_with_distance
 
+@router.post("/instrument", status_code=status.HTTP_200_OK, response_model=List[UserFilterOut])
+async def filter_instruments(user: user_dependency, db: db_dependency, filter: Filter):
+	users = (
+		db.query(User)
+		.join(User.genres)
+		.join(User.instruments)
+		.filter(Instrument.id.in_(filter.instruments))
+		.all()
+	)
+
+	return sort_by_location(user, users)
+
 @router.get("/location", status_code=status.HTTP_200_OK, response_model=List[UserFilterOut])
 async def filter_by_user_location(user: user_dependency, db: db_dependency):
 	if user.latitude is None or user.longitude is None:
@@ -58,18 +70,6 @@ async def filter_by_user_genre(user: user_dependency, db: db_dependency):
 		.join(User.genres)
 		.filter(Genre.id.in_(user_genre_ids))
 		.filter(User.id != user.id)
-		.all()
-	)
-
-	return sort_by_location(user, users)
-
-@router.post("/instrument", status_code=status.HTTP_200_OK, response_model=List[UserFilterOut])
-async def filter_instruments(user: user_dependency, db: db_dependency, filter: Filter):
-	users = (
-		db.query(User)
-		.join(User.genres)
-		.join(User.instruments)
-		.filter(Instrument.id.in_(filter.instruments))
 		.all()
 	)
 
