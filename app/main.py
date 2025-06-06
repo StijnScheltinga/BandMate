@@ -1,7 +1,7 @@
 from fastapi import FastAPI, status
 from app.database import engine
 from app import models
-from app.router import auth, user, genre, instrument, filter, profile
+from app.router import auth, user, genre, instrument, filter, profile, band, invites
 from app.scripts.startup import populate_initial_data
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
@@ -27,5 +27,7 @@ app.include_router(profile.router)
 app.include_router(genre.router)
 app.include_router(instrument.router)
 app.include_router(filter.router)
+app.include_router(band.router)
+app.include_router(invites.router)
 
 
