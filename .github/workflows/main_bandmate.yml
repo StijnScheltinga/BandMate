@@ -16,6 +16,7 @@ env:
   ALGORITHM: ${{ secrets.ALGORITHM }}
   BLOB_CONNECTION_STRING: ${{ secrets.BLOB_CONNECTION_STRING }}
   CONTAINER_NAME: ${{ secrets.CONTAINER_NAME }}
+  ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
 
 
 jobs:
