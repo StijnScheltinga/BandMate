@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     BLOB_CONNECTION_STRING: str
     CONTAINER_NAME: str
     ENVIRONMENT: str
+    GOOGLE_MAPS_API_KEY: str
 
     class Config:
         env_file = ".env"

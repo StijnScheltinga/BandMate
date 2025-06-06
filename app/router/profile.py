@@ -7,6 +7,7 @@ from typing import List
 from azure.storage.blob import BlobServiceClient
 from app.config import settings
 from datetime import datetime, timezone
+from app.util.location import get_city_from_latlong
 
 BLOB_CONNECTION_STRING = settings.BLOB_CONNECTION_STRING
 CONTAINER_NAME = settings.CONTAINER_NAME
@@ -56,6 +57,7 @@ async def set_profile_info(user: user_dependency, db: db_dependency, profile_inf
 	user.latitude = profile_info.latitude
 	user.longitude = profile_info.longitude
 	user.profile_picture = profile_info.profile_picture
+	user.city = get_city_from_latlong(user.latitude, user.longitude)
 
 	user.setup_complete = True
 
@@ -92,3 +94,5 @@ async def get_default_avatars():
 	blob_list = container_client.list_blobs()
 	urls = [f"https://{blob_service_client.account_name}.blob.core.windows.net/default-avatar/{blob.name}" for blob in blob_list]
 	return urls
+
+# Needs an endpoint for changing user profile info also for debugging latlong to city

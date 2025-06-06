@@ -49,6 +49,7 @@ class User(Base):
 	longitude = Column(Float, nullable=True)
 	refresh_token = Column(String(255), nullable=True)
 	profile_picture = Column(String(255), nullable=True)
+	city = Column(String(255), nullable=True)
 
 	setup_complete = Column(Boolean, default=False, nullable=False)
 
