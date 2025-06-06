@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     ALGORITHM: str
     BLOB_CONNECTION_STRING: str
     CONTAINER_NAME: str
+    ENVIRONMENT: str
 
     class Config:
         env_file = ".env"
