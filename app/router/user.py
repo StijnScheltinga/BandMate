@@ -46,6 +46,7 @@ class UserOut(BaseModel):
 	longitude: Optional[float] = None
 	distance_km: Optional[float] = None
 	profile_picture: Optional[str] = None
+	city: Optional[str] = None
 
 @router.post('/create_user', status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, create_user_request: CreateUserRequest):
