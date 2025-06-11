@@ -42,6 +42,7 @@ async def update_genres_user(user: user_dependency, db: db_dependency, user_genr
 	# Get genre IDs from the request payload
 	updated_genre_ids = set(user_genre_update.genre_ids)
 
+	# Check if the incoming ID's are valid
 	genres = db.query(Genre).all()
 	genre_ids_in_database = [genre.id for genre in genres]
 	
