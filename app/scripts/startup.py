@@ -47,9 +47,9 @@ INSTRUMENTS = [
     "Vocals"
 ]
 
-def populate_initial_data():
+def populate_initial_data(g_db):
 
-	db = next(get_db())
+	db = next(g_db())
 	for genre_name in GENRES:
 		if not db.query(Genre).filter(Genre.name == genre_name).first():
 			db.add(Genre(name=genre_name))

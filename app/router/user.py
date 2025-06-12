@@ -4,6 +4,7 @@ from app.router.auth import user_dependency, pw_context
 from app.models import User
 from pydantic import BaseModel, Field, EmailStr, field_validator
 from typing import List, Optional
+from app.responses import unauthorized
 import re
 
 router = APIRouter(
@@ -61,11 +62,11 @@ async def create_user(db: db_dependency, create_user_request: CreateUserRequest)
 
 	return {"message": "succesfully created user"}
 
-@router.get("/current", status_code=status.HTTP_200_OK, response_model=UserOut)
+@router.get("/current", status_code=status.HTTP_200_OK, response_model=UserOut, responses=unauthorized)
 async def get_current_user(user: user_dependency):
 	return user
 
-@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[UserOut])
+@router.get("/all", status_code=status.HTTP_200_OK, response_model=List[UserOut], responses=unauthorized)
 async def get_all_users(user: user_dependency, db: db_dependency):
 	return db.query(User).all()
 

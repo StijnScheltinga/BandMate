@@ -1,5 +1,5 @@
 from fastapi import FastAPI, status
-from app.database import engine
+from app.database import engine, get_db
 from app import models
 from app.config import settings
 from app.router import auth, user, genre, instrument, filter, profile, band, invites
@@ -11,7 +11,7 @@ import sentry_sdk
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 	models.Base.metadata.create_all(bind=engine)
-	populate_initial_data()
+	populate_initial_data(get_db)
 	yield
 
 sentry_sdk.init(

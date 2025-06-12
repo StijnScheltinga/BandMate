@@ -8,6 +8,7 @@ from app.models import Base
 from app.router.user import create_user
 from fastapi.testclient import TestClient
 from faker import Faker
+from app.scripts.startup import populate_initial_data
 
 DATABASE_URL = "sqlite:///:memory:"
 
@@ -23,8 +24,12 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 fake = Faker()
 
 @pytest.fixture(autouse=True, scope="session")
-def setup_and_teardown_db():
+def setup_and_teardown_db(db_session):
+	def override_get_db():
+		yield db_session
+
 	Base.metadata.create_all(bind=engine)
+	populate_initial_data(override_get_db)
 	yield
 	Base.metadata.drop_all(bind=engine)
 
@@ -42,7 +47,7 @@ def client(db_session):
 		yield db_session
 
 	app.dependency_overrides[get_db] = override_get_db
-	client = TestClient(app)
+	client = TestClient(app) 
 	return client
 
 @pytest.fixture(scope="session")
@@ -69,6 +74,15 @@ def tokens(client, test_user):
 def auth_headers(tokens):
 	access_token = tokens["access_token"]
 	return {"Authorization": f"Bearer {access_token}"}
+
+@pytest.fixture
+def client_auth(db_session, auth_headers):
+	def override_get_db():
+		yield db_session
+
+	app.dependency_overrides[get_db] = override_get_db
+	client = TestClient(app, headers=auth_headers) 
+	return client
 
 def create_test_user(client, email=None, password=None):
 	user_data = {

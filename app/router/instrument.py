@@ -41,10 +41,14 @@ async def update_instruments_user(user: user_dependency, db: db_dependency, user
 	# Get instrument IDs from the request payload
 	updated_instrument_ids = set(user_instrument_update.instrument_ids)
 
-	# Check if id's in request are valid
-	for i_id in updated_instrument_ids:
-		if i_id < 1 or i_id > len(INSTRUMENTS):
-			raise HTTPException(status_code=400, detail=f"Id {i_id} does not exist")
+	# Check if the incoming ID's are valid
+	instruments = db.query(Instrument).all()
+	instrument_ids_in_database = [instrument.id for instrument in instruments]
+	
+	for g_id in updated_instrument_ids:
+		if g_id not in instrument_ids_in_database:
+			raise HTTPException(status_code=404, detail=f"Id {g_id} does not exist")
+
 
 	# Determine instruments to add and remove
 	instrument_ids_to_add = updated_instrument_ids - current_user_instrument_ids
