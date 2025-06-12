@@ -33,7 +33,7 @@ class RefreshToken(BaseModel):
 def authenticate_user(email, password, db: db_dependency):
 	user = db.query(User).filter(User.email == email).first()
 	if not user:
-		raise HTTPException(status_code=404, detail="User not found")
+		raise HTTPException(status_code=404, detail="Email not found")
 	if not pw_context.verify(password, user.hashed_password):
 		raise HTTPException(status_code=401, detail="Incorrect Password")
 	return user
@@ -56,11 +56,15 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)], db: db
 			raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
 		current_user = db.query(User).filter(User.id == user_id).first()
 		return current_user
+	except ExpiredSignatureError:
+		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Acces token expired")
 	except JWTError:
 		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
 
 
-@router.post("/token", response_model=Token)
+@router.post("/token", status_code=status.HTTP_200_OK, response_model=Token, responses={
+	401: {"description": "Incorrect password"},
+	404: {"description": "Email not found"}})
 async def get_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: db_dependency):
 	user = authenticate_user(form_data.username, form_data.password, db)
 	access_token = create_token(user.email, user.id, timedelta(minutes=15))
@@ -70,7 +74,29 @@ async def get_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depen
 	db.commit()
 	return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
-@router.post("/refresh", status_code=status.HTTP_200_OK, response_model=RefreshToken)
+@router.post("/refresh", status_code=status.HTTP_200_OK, response_model=RefreshToken, responses={
+	401: {
+		"description": "Invalid refresh token",
+		"content": {
+			"application/json": {
+				"examples": {
+					"InvalidToken": {
+						"summary": "Refresh token doesn't match user's token",
+						"value": {"detail": "Invalid refresh token"}
+					},
+					"ExpiredToken": {
+						"summary": "Refresh token expired",
+						"value": {"detail": "Refresh token expired"}
+					},
+					"MalformedToken": {
+						"summary": "Invalid or malformed JWT",
+						"value": {"detail": "Invalid refresh token"}
+					},
+				}
+			}
+		}
+	}
+})
 async def refresh_token(db: db_dependency, refresh_token: str = Body(...)):
 	try:
 		payload = jwt.decode(refresh_token, SECRET_KEY, ALGORITHM)

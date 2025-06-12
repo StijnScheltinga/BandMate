@@ -20,12 +20,7 @@ sentry_sdk.init(
 	environment=settings.ENVIRONMENT
 )
 
-app = FastAPI(
-	lifespan=lifespan
-	# responses={
-	# 	401: {"description": "unauthorized"}
-	# }
-	)
+app = FastAPI(lifespan=lifespan)
 
 class HealthOut(BaseModel):
 	status: dict = 'Server is running'
