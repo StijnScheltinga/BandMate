@@ -8,7 +8,8 @@ from pydantic import BaseModel
 
 router = APIRouter(
 	prefix='/genre',
-	tags=['genre']
+	tags=['genre'],
+	responses={401: {"description": "unauthorized"}}
 )
 
 class UserGenreUpdate(BaseModel):
@@ -23,12 +24,12 @@ async def get_all_genres(user: user_dependency, db: db_dependency):
 	genres = db.query(Genre).all()
 	return genres
 
-@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut])
-async def get_user_genres(user: user_dependency, db: db_dependency):
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=List[GenreOut], )
+async def get_user_genres(user: user_dependency):
 	genres = user.genres
 	return genres
 
-@router.put("/user", status_code=status.HTTP_200_OK)
+@router.put("/user", status_code=status.HTTP_200_OK, responses={404: {"description": "Genre id not found"}})
 async def update_genres_user(user: user_dependency, db: db_dependency, user_genre_update: UserGenreUpdate):
 	"""
 	Logic for updating: 
@@ -41,9 +42,13 @@ async def update_genres_user(user: user_dependency, db: db_dependency, user_genr
 	# Get genre IDs from the request payload
 	updated_genre_ids = set(user_genre_update.genre_ids)
 
+	# Check if the incoming ID's are valid
+	genres = db.query(Genre).all()
+	genre_ids_in_database = [genre.id for genre in genres]
+	
 	for g_id in updated_genre_ids:
-		if g_id < 1 or g_id > len(GENRES):
-			raise HTTPException(status_code=400, detail=f"Id {g_id} does not exist")
+		if g_id not in genre_ids_in_database:
+			raise HTTPException(status_code=404, detail=f"Id {g_id} does not exist")
 
 	# Determine genres to add and remove
 	genre_ids_to_add = updated_genre_ids - current_user_genre_ids
